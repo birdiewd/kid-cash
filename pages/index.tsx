@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { useDisclosure } from '@chakra-ui/hooks'
 import {
 	Badge,
@@ -96,7 +96,7 @@ const Home = () => {
 						m={'1rem'}
 					>
 						{weekDays.map((weekDay) => (
-							<>
+							<React.Fragment key={weekDay}>
 								<GridItem colSpan={{ base: 2, md: 5 }}>
 									<Heading size={'md'}>
 										{moment(weekDay).format(
@@ -110,62 +110,67 @@ const Home = () => {
 											event.date ===
 											moment(weekDay).format('YYYY-MM-DD')
 									)
-									.map((event) => [
-										<GridItem>
-											<u>
+									.map((event) => (
+										<React.Fragment key={event.id}>
+											<GridItem>
+												<u>
+													{
+														kidData.find(
+															({ user_id }) =>
+																user_id ===
+																event.kid_id
+														)?.name
+													}
+												</u>
+											</GridItem>
+											<GridItem>
 												{
-													kidData.find(
-														({ user_id }) =>
-															user_id ===
-															event.kid_id
+													eventConfigs.find(
+														({ id }) =>
+															id === event.task_id
 													)?.name
 												}
-											</u>
-										</GridItem>,
-										<GridItem>
-											{
-												eventConfigs.find(
+											</GridItem>
+											<GridItem
+												colSpan={{ base: 2, md: 1 }}
+											>
+												{event.description}
+											</GridItem>
+											<GridItem>
+												{eventConfigs.find(
 													({ id }) =>
 														id === event.task_id
-												)?.name
-											}
-										</GridItem>,
-										<GridItem colSpan={{ base: 2, md: 1 }}>
-											{event.description}
-										</GridItem>,
-										<GridItem>
-											{eventConfigs.find(
-												({ id }) => id === event.task_id
-											)?.direction > 0 ? (
-												<Badge
-													colorScheme={'green'}
-													fontSize="1em"
-												>
-													Good
-												</Badge>
-											) : (
-												<Badge
-													colorScheme={'red'}
-													fontSize="1em"
-												>
-													Bad
-												</Badge>
-											)}
-										</GridItem>,
-										<GridItem justifySelf={'flex-end'}>
-											<IconButton
-												aria-label="Go back a week"
-												icon={<BiPencil />}
-												colorScheme="blue"
-												size={'md'}
-												onClick={() => {
-													setEditEventId(event.id)
-													onOpen()
-												}}
-											/>
-										</GridItem>,
-									])}
-							</>
+												)?.direction > 0 ? (
+													<Badge
+														colorScheme={'green'}
+														fontSize="1em"
+													>
+														Good
+													</Badge>
+												) : (
+													<Badge
+														colorScheme={'red'}
+														fontSize="1em"
+													>
+														Bad
+													</Badge>
+												)}
+											</GridItem>
+											<GridItem justifySelf={'flex-end'}>
+												<IconButton
+													aria-label="Go back a week"
+													icon={<BiPencil />}
+													colorScheme="blue"
+													size={'md'}
+													onClick={() => {
+														setEditEventId(event.id)
+														onOpen()
+													}}
+												/>
+											</GridItem>
+										</React.Fragment>
+									))}
+							</React.Fragment>
 						))}
 					</Grid>
 				</GridItem>
