@@ -92,8 +92,8 @@ const Home = () => {
 						gridTemplateColumns={{
 							md:
 								userLevel === UserLevels.parent
-									? '1fr 1fr 1fr 1fr auto'
-									: '1fr 1fr 1fr auto',
+									? '1fr 1fr 2fr 1fr auto'
+									: '1fr 1fr 2fr 1fr',
 							base: '1fr 1fr',
 						}}
 						gap=".5rem"
@@ -164,16 +164,16 @@ const Home = () => {
 												)?.direction > 0 ? (
 													<Badge
 														colorScheme={'green'}
-														fontSize="1em"
+														fontSize=".8em"
 													>
-														Good
+														Addition
 													</Badge>
 												) : (
 													<Badge
 														colorScheme={'red'}
-														fontSize="1em"
+														fontSize=".8em"
 													>
-														Bad
+														Deduction
 													</Badge>
 												)}
 											</GridItem>
