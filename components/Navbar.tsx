@@ -2,13 +2,14 @@ import { Box, Button, ButtonGroup, Flex, Heading } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { MouseEventHandler, useState } from 'react'
 import { useContext } from 'react'
+import { UserLevels } from '../lib/constants'
 
 import AppContext from '../AppContext'
 import { supabaseClient } from '../lib/client'
 
 const Navbar = ({ onOpen }: { onOpen: CallableFunction }) => {
 	const {
-		state: { isAdmin, kidData },
+		state: { userLevel, kidData },
 	} = useContext(AppContext)
 
 	const router = useRouter()
@@ -38,7 +39,7 @@ const Navbar = ({ onOpen }: { onOpen: CallableFunction }) => {
 					<Heading mr="4">KidCash Rewards</Heading>
 					<Box>
 						<ButtonGroup spacing="4" ml="6">
-							{isAdmin && (
+							{userLevel === UserLevels.parent && (
 								<Button
 									colorScheme="blue"
 									onClick={

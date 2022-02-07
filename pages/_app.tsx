@@ -1,20 +1,27 @@
 import type { AppProps } from 'next/app'
 import { ChakraProvider } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo, useState } from 'react'
-import moment from 'moment'
+import { useEffect, useState } from 'react'
+import { UserLevels } from '../lib/constants'
 
 import AppContext from '../AppContext'
 import { supabaseClient } from '../lib/client'
 import customTheme from '../lib/theme'
+import moment from 'moment'
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const router = useRouter()
 	const user = supabaseClient.auth.user()
 
-	// const [starData, setStarData] = useState([])
-	const [kidData, setKidData] = useState([])
-	// const [relationshipData, setRelationshipData] = useState([])
+	const [kidData, setKidData] = useState<Record<string, string>[] | null>([])
+	const [eventData, setEventData] = useState<Record<string, string>[] | null>(
+		[]
+	)
+	const [eventConfigs, setEventConfigs] = useState<
+		Record<string, string>[] | null
+	>([])
+	const [userLevel, setUserLevel] = useState<UserLevels | null>()
+	const [editEventId, setEditEventId] = useState<number | null>()
 
 	const getKids = async () => {
 		const { data: kids, error } = await supabaseClient
@@ -22,14 +29,61 @@ function MyApp({ Component, pageProps }: AppProps) {
 			.select('*')
 			.is('is_active', true)
 
-		console.log({ kids })
+		if (kids?.map(({ user_id }) => user_id).includes(user?.id)) {
+			setUserLevel(UserLevels.kid)
+		} else {
+			setUserLevel(UserLevels.parent)
+		}
 
 		if (error) {
-			console.log('star fetch error', error)
+			console.log('kids fetch error', error)
 		} else {
 			setKidData(kids)
 		}
 	}
+
+	const getEventConfigs = async () => {
+		const { data: configs, error } = await supabaseClient
+			.from('tasks')
+			.select('*')
+			.is('is_active', true)
+
+		if (error) {
+			console.log('event configs fetch error', error)
+		} else {
+			setEventConfigs(configs)
+		}
+	}
+
+	const getEvents = async (addWeeks = 0) => {
+		const { data: events, error } = await supabaseClient
+			.from('kid_tasks')
+			.select('*')
+			.is('is_active', true)
+			.gte(
+				'date',
+				moment()
+					.add(addWeeks, 'weeks')
+					.startOf('week')
+					.format('YYYY-MM-DD')
+			)
+			.lte(
+				'date',
+				moment()
+					.add(addWeeks, 'weeks')
+					.endOf('week')
+					.format('YYYY-MM-DD')
+			)
+
+		if (error) {
+			console.log('kid event fetch error', error)
+		} else {
+			setEventData(events)
+		}
+	}
+
+	const getEvent = (eventId: number) =>
+		eventData?.find((event) => parseInt(event.id, 10) === eventId)
 
 	const unAuthedPathes = ['/signin', '/recover', '/reset', '/signup']
 
@@ -38,13 +92,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 			router.push('/signin')
 		} else {
 			getKids()
+			getEventConfigs()
+			getEvents()
 		}
 	}, [user, router])
-
-	const isAdmin = useMemo(
-		() => !kidData.map((kid) => kid.user_id).includes(user?.id),
-		[kidData, user]
-	)
 
 	useEffect(() => {
 		const { data: authListener } = supabaseClient.auth.onAuthStateChange(
@@ -87,18 +138,19 @@ function MyApp({ Component, pageProps }: AppProps) {
 		}
 	}, [router.pathname, user, router])
 
-	console.log({ user })
-
 	return (
 		<AppContext.Provider
 			value={{
 				state: {
-					// relationshipData,
-					// starData,
-					isAdmin,
+					userLevel,
 					kidData,
-					// user,
+					eventConfigs,
+					editEventId,
+					eventData,
 				},
+				getEvents,
+				getEvent,
+				setEditEventId,
 			}}
 		>
 			<ChakraProvider theme={customTheme}>

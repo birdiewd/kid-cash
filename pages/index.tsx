@@ -1,49 +1,52 @@
 import Head from 'next/head'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useDisclosure } from '@chakra-ui/hooks'
-import { Grid, Tooltip } from '@chakra-ui/react'
-import moment from 'moment'
+import {
+	Badge,
+	Flex,
+	Grid,
+	GridItem,
+	Heading,
+	IconButton,
+	Tooltip,
+} from '@chakra-ui/react'
+import {
+	BiAlarm,
+	BiChevronLeft,
+	BiChevronRight,
+	BiPencil,
+} from 'react-icons/bi'
 import { useContext } from 'react'
 
 import AppContext from '../AppContext'
 import Navbar from '../components/Navbar'
-import ManageStars from '../components/ManageStars'
+import ManageEvent from '../components/ManageEvent'
+import moment from 'moment'
 
 const Home = () => {
-	// const initialRef = useRef()
+	const {
+		state: { kidData, userLevel, eventConfigs, editEventId, eventData },
+		getEvents,
+		setEditEventId,
+	} = useContext(AppContext)
 
+	const initialRef = useRef()
 	const { isOpen, onOpen, onClose } = useDisclosure()
 
-	// const {
-	// 	state: { starData, isOwner },
-	// } = useContext(AppContext)
+	const [week, setWeek] = useState(0)
 
-	// const stellarWeeks = useMemo(() => {
-	// 	if (starData) {
-	// 		const weekData = starData.reduce((weeks, star) => {
-	// 			const thisWeek = moment(star.created_at)
-	// 				.startOf('week')
-	// 				.format('YYYY-MM-DD')
-
-	// 			if (!Object.keys(weeks).includes(thisWeek)) {
-	// 				weeks = {
-	// 					...weeks,
-	// 					[thisWeek]: [],
-	// 				}
-	// 			}
-
-	// 			weeks[thisWeek].push(star)
-
-	// 			return weeks
-	// 		}, {})
-
-	// 		console.log({ weekData })
-
-	// 		return weekData
-	// 	}
-
-	// 	return {}
-	// }, [starData])
+	const weekDays = useMemo(
+		() =>
+			Array(7)
+				.fill(0)
+				.map((day, dayIndex) =>
+					moment()
+						.startOf('week')
+						.add(week, 'weeks')
+						.add(dayIndex, 'days')
+				),
+		[week]
+	)
 
 	return (
 		<div>
@@ -52,91 +55,126 @@ const Home = () => {
 				<meta name="description" content="Make money money." />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			<main>
-				<Navbar onOpen={onOpen} />
-				{/* <Grid templateRows={'auto'} rowGap={'2rem'} p="2rem">
-					{stellarWeeks &&
-						Object.keys(stellarWeeks)
-							.sort()
-							.reverse()
-							.map((weekNumber) => (
-								<div key={`week-${weekNumber}`}>
-									{console.log(weekNumber)}
-									<strong>
-										Week of{' '}
-										{moment(weekNumber).format(
-											'YYYY-MM-DD'
-										)}{' '}
-										thru{' '}
-										{moment(weekNumber)
-											.add(6, 'days')
-											.format('YYYY-MM-DD')}
-									</strong>
-									<Grid
-										templateColumns={
-											'repeat(auto-fill, 3rem)'
-										}
-										p="1rem"
-										gap={'.5rem'}
-									>
-										{stellarWeeks[weekNumber]
-											.reverse()
-											.map((star) =>
-												star.is_super ? (
-													<Tooltip
-														label={`${moment(
-															star.created_at
-														).format(
-															'ddd - MM-DD'
-														)} - ${
-															star.description
-														}`}
-														key={star.id}
-														isDisabled={!isOwner}
-													>
-														<div
-															style={{
-																filter: 'opacity(.5) hue-rotate(120deg) drop-shadow(0 0 0 #0000ff)',
-															}}
-															title={
-																star.description
-															}
-														>
-															X
-														</div>
-													</Tooltip>
-												) : (
-													<Tooltip
-														label={`${moment(
-															star.created_at
-														).format(
-															'ddd - MM-DD'
-														)} - ${
-															star.description
-														}`}
-														key={star.id}
-														isDisabled={!isOwner}
-													>
-														<div
-															title={
-																star.description
-															}
-														>
-															X
-														</div>
-													</Tooltip>
-												)
+			<Grid>
+				<GridItem>
+					<Navbar onOpen={onOpen} />
+				</GridItem>
+				<GridItem>
+					<Flex gap="1rem" margin="1rem" justifyContent={'center'}>
+						<IconButton
+							aria-label="Go back a week"
+							icon={<BiChevronLeft size={'2rem'} />}
+							colorScheme="green"
+							size={'lg'}
+							onClick={() => setWeek(week - 1)}
+						/>
+						<IconButton
+							aria-label="Go to this week"
+							icon={<BiAlarm size={'2rem'} />}
+							colorScheme="blue"
+							disabled={week === 0}
+							size={'lg'}
+							onClick={() => setWeek(0)}
+						/>
+						<IconButton
+							aria-label="Go back a week"
+							icon={<BiChevronRight size={'2rem'} />}
+							colorScheme="green"
+							disabled={week === 0}
+							size={'lg'}
+							onClick={() => setWeek(week + 1 > 0 ? 0 : week + 1)}
+						/>
+					</Flex>
+				</GridItem>
+				<GridItem>
+					<Grid
+						gridTemplateColumns={{
+							md: '1fr 1fr 1fr 1fr auto',
+							base: '1fr 1fr',
+						}}
+						gap=".5rem"
+						m={'1rem'}
+					>
+						{weekDays.map((weekDay) => (
+							<>
+								<GridItem colSpan={{ base: 2, md: 5 }}>
+									<Heading size={'md'}>
+										{moment(weekDay).format(
+											'YYYY-MM-DD - dddd'
+										)}
+									</Heading>
+								</GridItem>
+								{eventData
+									.filter(
+										(event) =>
+											event.date ===
+											moment(weekDay).format('YYYY-MM-DD')
+									)
+									.map((event) => [
+										<GridItem>
+											<u>
+												{
+													kidData.find(
+														({ user_id }) =>
+															user_id ===
+															event.kid_id
+													)?.name
+												}
+											</u>
+										</GridItem>,
+										<GridItem>
+											{
+												eventConfigs.find(
+													({ id }) =>
+														id === event.task_id
+												)?.name
+											}
+										</GridItem>,
+										<GridItem colSpan={{ base: 2, md: 1 }}>
+											{event.description}
+										</GridItem>,
+										<GridItem>
+											{eventConfigs.find(
+												({ id }) => id === event.task_id
+											)?.direction > 0 ? (
+												<Badge
+													colorScheme={'green'}
+													fontSize="1em"
+												>
+													Good
+												</Badge>
+											) : (
+												<Badge
+													colorScheme={'red'}
+													fontSize="1em"
+												>
+													Bad
+												</Badge>
 											)}
-									</Grid>
-								</div>
-							))}
-				</Grid>
-				<ManageStars
-					isOpen={isOpen}
-					onClose={onClose}
-					initialRef={initialRef}
-				/> */}
-			</main>
+										</GridItem>,
+										<GridItem justifySelf={'flex-end'}>
+											<IconButton
+												aria-label="Go back a week"
+												icon={<BiPencil />}
+												colorScheme="blue"
+												size={'md'}
+												onClick={() => {
+													setEditEventId(event.id)
+													onOpen()
+												}}
+											/>
+										</GridItem>,
+									])}
+							</>
+						))}
+					</Grid>
+				</GridItem>
+			</Grid>
+			<ManageEvent
+				isOpen={isOpen}
+				onClose={onClose}
+				initialRef={initialRef}
+			/>
 		</div>
 	)
 }
