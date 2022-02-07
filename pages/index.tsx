@@ -22,6 +22,7 @@ import AppContext from '../AppContext'
 import Navbar from '../components/Navbar'
 import ManageEvent from '../components/ManageEvent'
 import moment from 'moment'
+import { UserLevels } from '../lib/constants'
 
 const Home = () => {
 	const {
@@ -89,7 +90,10 @@ const Home = () => {
 				<GridItem>
 					<Grid
 						gridTemplateColumns={{
-							md: '1fr 1fr 1fr 1fr auto',
+							md:
+								userLevel === UserLevels.parent
+									? '1fr 1fr 1fr 1fr auto'
+									: '1fr 1fr 1fr auto',
 							base: '1fr 1fr',
 						}}
 						gap=".5rem"
@@ -97,7 +101,15 @@ const Home = () => {
 					>
 						{weekDays.map((weekDay) => (
 							<React.Fragment key={weekDay}>
-								<GridItem colSpan={{ base: 2, md: 5 }}>
+								<GridItem
+									colSpan={{
+										base: 2,
+										md:
+											userLevel === UserLevels.parent
+												? 5
+												: 4,
+									}}
+								>
 									<Heading size={'md'}>
 										{moment(weekDay).format(
 											'YYYY-MM-DD - dddd'
@@ -136,7 +148,16 @@ const Home = () => {
 											>
 												{event.description}
 											</GridItem>
-											<GridItem>
+											<GridItem
+												colSpan={{
+													base:
+														userLevel ===
+														UserLevels.parent
+															? 1
+															: 2,
+													md: 1,
+												}}
+											>
 												{eventConfigs.find(
 													({ id }) =>
 														id === event.task_id
@@ -156,18 +177,25 @@ const Home = () => {
 													</Badge>
 												)}
 											</GridItem>
-											<GridItem justifySelf={'flex-end'}>
-												<IconButton
-													aria-label="Go back a week"
-													icon={<BiPencil />}
-													colorScheme="blue"
-													size={'md'}
-													onClick={() => {
-														setEditEventId(event.id)
-														onOpen()
-													}}
-												/>
-											</GridItem>
+											{userLevel ===
+												UserLevels.parent && (
+												<GridItem
+													justifySelf={'flex-end'}
+												>
+													<IconButton
+														aria-label="Go back a week"
+														icon={<BiPencil />}
+														colorScheme="blue"
+														size={'md'}
+														onClick={() => {
+															setEditEventId(
+																event.id
+															)
+															onOpen()
+														}}
+													/>
+												</GridItem>
+											)}
 										</React.Fragment>
 									))}
 							</React.Fragment>
