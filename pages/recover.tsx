@@ -27,7 +27,7 @@ const Recover = () => {
 		try {
 			const { error } =
 				await supabaseClient.auth.api.resetPasswordForEmail(email, {
-					redirectTo: 'http://substar.local:3000/reset',
+					redirectTo: 'https://kid-cash.vercel.app/reset',
 				})
 			if (error) {
 				setError(error.message)
