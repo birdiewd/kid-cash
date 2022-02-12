@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useDisclosure } from '@chakra-ui/hooks'
 import {
 	Badge,
@@ -26,8 +26,17 @@ import { UserLevels } from '../lib/constants'
 
 const Home = () => {
 	const {
-		state: { kidData, kidFilter, userLevel, eventConfigs, eventData, user },
+		state: {
+			kidData,
+			kidFilter,
+			userLevel,
+			eventConfigs,
+			eventData,
+			user,
+			week,
+		},
 		setEditEventId,
+		setWeek,
 	} = useContext(AppContext)
 
 	const {
@@ -35,8 +44,6 @@ const Home = () => {
 		onOpen: onEventOpen,
 		onClose: onEventClose,
 	} = useDisclosure()
-
-	const [week, setWeek] = useState(0)
 
 	const weekDays = useMemo(
 		() =>
@@ -221,11 +228,12 @@ const Home = () => {
 												UserLevels.parent && (
 												<GridItem
 													color={'blue.500'}
+													justifySelf={'flex-end'}
 													onClick={() => {
 														setEditEventId(event.id)
-														onEventClose()
+														onEventOpen()
 													}}
-													justifySelf={'flex-end'}
+													cursor="pointer"
 												>
 													<BiPencil size={'1.5rem'} />
 												</GridItem>

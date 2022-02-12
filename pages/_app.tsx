@@ -23,6 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 	>([])
 	const [userLevel, setUserLevel] = useState<UserLevels | null>()
 	const [editEventId, setEditEventId] = useState<number | null>()
+	const [week, setWeek] = useState(0)
 
 	const getKids = async () => {
 		const { data: kids, error } = await supabaseClient
@@ -56,26 +57,22 @@ function MyApp({ Component, pageProps }: AppProps) {
 		}
 	}
 
-	const getEvents = async (addWeeks = 0) => {
+	const getEvents = async () => {
 		const { data: events, error } = await supabaseClient
 			.from('kid_tasks')
 			.select('*')
 			.is('is_active', true)
 			.gte(
 				'date',
-				moment()
-					.add(addWeeks, 'weeks')
-					.startOf('week')
-					.format('YYYY-MM-DD')
+				moment().add(week, 'weeks').startOf('week').format('YYYY-MM-DD')
 			)
 			.lte(
 				'date',
-				moment()
-					.add(addWeeks, 'weeks')
-					.endOf('week')
-					.format('YYYY-MM-DD')
+				moment().add(week, 'weeks').endOf('week').format('YYYY-MM-DD')
 			)
+			.order('date')
 			.order('kid_id')
+			.order('task_id')
 
 		if (error) {
 			console.log('kid event fetch error', error)
@@ -88,6 +85,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 		eventData?.find((event) => parseInt(event.id, 10) === eventId)
 
 	const unAuthedPathes = ['/signin', '/recover', '/reset', '/signup']
+
+	useEffect(() => {
+		getEvents()
+	}, [week])
 
 	useEffect(() => {
 		if (!user && !unAuthedPathes.includes(router.pathname)) {
@@ -151,11 +152,13 @@ function MyApp({ Component, pageProps }: AppProps) {
 					eventConfigs,
 					editEventId,
 					eventData,
+					week,
 				},
 				getEvents,
 				getEvent,
 				setEditEventId,
 				setKidFilter,
+				setWeek,
 			}}
 		>
 			<ChakraProvider theme={customTheme}>

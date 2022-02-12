@@ -6,9 +6,10 @@ import {
 	IconButton,
 	Select,
 	Link,
+	Badge,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { MouseEventHandler, useState } from 'react'
+import { MouseEventHandler, useMemo, useState } from 'react'
 import { useContext } from 'react'
 import { UserLevels } from '../lib/constants'
 
@@ -16,10 +17,11 @@ import AppContext from '../AppContext'
 import { supabaseClient } from '../lib/client'
 import { BiLockOpen, BiPlus, BiQuestionMark } from 'react-icons/bi'
 import NextLink from 'next/link'
+import { calculateWeek } from '../lib/calculations'
 
 const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 	const {
-		state: { userLevel, kidData, kidFilter },
+		state: { userLevel, kidData, kidFilter, eventData, user },
 		setKidFilter,
 	} = useContext(AppContext)
 
@@ -37,6 +39,16 @@ const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 			setIsLogoutLoading(false)
 		}
 	}
+
+	const dollar = useMemo(() => {
+		if (kidFilter) {
+			return `$${calculateWeek(eventData)[kidFilter] || 0}`
+		}
+
+		if (userLevel === UserLevels.kid) {
+			return `$${calculateWeek(eventData)[user?.id] || 0}`
+		}
+	}, [kidFilter, user, eventData])
 
 	return (
 		<Box height={'5rem'}>
@@ -65,10 +77,21 @@ const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 					<Link color={'blue.500'}>FAQ</Link>
 				</NextLink>
 				<Box>
+					{dollar && (
+						<Badge
+							colorScheme={'blackAlpha'}
+							mx="1rem"
+							p={'.25rem .5rem'}
+							fontSize={'xl'}
+						>
+							{dollar}
+						</Badge>
+					)}
 					<ButtonGroup spacing=".5rem">
 						{userLevel === UserLevels.parent && (
 							<>
 								<Select
+									background={'white'}
 									placeholder="All"
 									value={kidFilter}
 									onChange={(event) =>
