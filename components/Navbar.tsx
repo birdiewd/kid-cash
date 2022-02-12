@@ -5,6 +5,7 @@ import {
 	Heading,
 	IconButton,
 	Select,
+	Link,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { MouseEventHandler, useState } from 'react'
@@ -13,7 +14,8 @@ import { UserLevels } from '../lib/constants'
 
 import AppContext from '../AppContext'
 import { supabaseClient } from '../lib/client'
-import { BiLockOpen, BiPlus } from 'react-icons/bi'
+import { BiLockOpen, BiPlus, BiQuestionMark } from 'react-icons/bi'
+import NextLink from 'next/link'
 
 const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 	const {
@@ -59,6 +61,9 @@ const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 				>
 					KidCash Rewards
 				</Heading>
+				<NextLink href={'/faq'} passHref>
+					<Link color={'blue.500'}>FAQ</Link>
+				</NextLink>
 				<Box>
 					<ButtonGroup spacing=".5rem">
 						{userLevel === UserLevels.parent && (
