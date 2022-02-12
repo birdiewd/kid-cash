@@ -1,4 +1,11 @@
-import { Box, Button, ButtonGroup, Flex, Heading } from '@chakra-ui/react'
+import {
+	Box,
+	ButtonGroup,
+	Flex,
+	Heading,
+	IconButton,
+	Select,
+} from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { MouseEventHandler, useState } from 'react'
 import { useContext } from 'react'
@@ -6,10 +13,12 @@ import { UserLevels } from '../lib/constants'
 
 import AppContext from '../AppContext'
 import { supabaseClient } from '../lib/client'
+import { BiLockOpen, BiPlus } from 'react-icons/bi'
 
-const Navbar = ({ onOpen }: { onOpen: CallableFunction }) => {
+const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 	const {
-		state: { userLevel, kidData },
+		state: { userLevel, kidData, kidFilter },
+		setKidFilter,
 	} = useContext(AppContext)
 
 	const router = useRouter()
@@ -28,38 +37,72 @@ const Navbar = ({ onOpen }: { onOpen: CallableFunction }) => {
 	}
 
 	return (
-		<Box height="100%" p="5" bg="gray.100">
-			<Box maxW="6xl" mx="auto">
-				<Flex
-					as="nav"
-					aria-label="Site navigation"
-					align="center"
-					justify="space-between"
+		<Box height={'5rem'}>
+			<Flex
+				as="nav"
+				aria-label="Site navigation"
+				align="center"
+				justify="space-between"
+				width="100%"
+				pos={'fixed'}
+				height={'5rem'}
+				bg="gray.100"
+				padding={'1rem'}
+				zIndex="1"
+			>
+				<Heading
+					as="h1"
+					fontSize={{
+						base: '1.2rem',
+						md: '2rem',
+					}}
 				>
-					<Heading mr="4">KidCash Rewards</Heading>
-					<Box>
-						<ButtonGroup spacing="4" ml="6">
-							{userLevel === UserLevels.parent && (
-								<Button
-									colorScheme="blue"
-									onClick={
-										onOpen as MouseEventHandler<HTMLButtonElement>
+					KidCash Rewards
+				</Heading>
+				<Box>
+					<ButtonGroup spacing=".5rem">
+						{userLevel === UserLevels.parent && (
+							<>
+								<Select
+									placeholder="All"
+									value={kidFilter}
+									onChange={(event) =>
+										setKidFilter(
+											event.currentTarget.value.length
+												? event.currentTarget.value
+												: null
+										)
 									}
 								>
-									Add Event
-								</Button>
-							)}
-							<Button
-								colorScheme="red"
-								onClick={logoutHandler}
-								isLoading={isLogoutLoading}
-							>
-								Logout
-							</Button>
-						</ButtonGroup>
-					</Box>
-				</Flex>
-			</Box>
+									{kidData.map((kid, index) => (
+										<option
+											key={`select-kid-${index}`}
+											value={kid.user_id}
+										>
+											{kid.name}
+										</option>
+									))}
+								</Select>
+								<IconButton
+									aria-label="Add an event"
+									icon={<BiPlus size={'2rem'} />}
+									colorScheme="green"
+									onClick={
+										onEventOpen as MouseEventHandler<HTMLButtonElement>
+									}
+								/>
+							</>
+						)}
+						<IconButton
+							aria-label="Add an event"
+							icon={<BiLockOpen size={'2rem'} />}
+							colorScheme="red"
+							onClick={logoutHandler}
+							isLoading={isLogoutLoading}
+						/>
+					</ButtonGroup>
+				</Box>
+			</Flex>
 		</Box>
 	)
 }

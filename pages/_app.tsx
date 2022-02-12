@@ -14,6 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 	const user = supabaseClient.auth.user()
 
 	const [kidData, setKidData] = useState<Record<string, string>[] | null>([])
+	const [kidFilter, setKidFilter] = useState<string | null>(null)
 	const [eventData, setEventData] = useState<Record<string, string>[] | null>(
 		[]
 	)
@@ -74,6 +75,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 					.endOf('week')
 					.format('YYYY-MM-DD')
 			)
+			.order('kid_id')
 
 		if (error) {
 			console.log('kid event fetch error', error)
@@ -142,8 +144,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 		<AppContext.Provider
 			value={{
 				state: {
+					user,
 					userLevel,
 					kidData,
+					kidFilter,
 					eventConfigs,
 					editEventId,
 					eventData,
@@ -151,6 +155,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 				getEvents,
 				getEvent,
 				setEditEventId,
+				setKidFilter,
 			}}
 		>
 			<ChakraProvider theme={customTheme}>

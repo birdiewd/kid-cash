@@ -1,14 +1,14 @@
 import Head from 'next/head'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useDisclosure } from '@chakra-ui/hooks'
 import {
 	Badge,
+	Box,
 	Flex,
 	Grid,
 	GridItem,
 	Heading,
 	IconButton,
-	Tooltip,
 } from '@chakra-ui/react'
 import {
 	BiAlarm,
@@ -26,13 +26,15 @@ import { UserLevels } from '../lib/constants'
 
 const Home = () => {
 	const {
-		state: { kidData, userLevel, eventConfigs, editEventId, eventData },
-		getEvents,
+		state: { kidData, kidFilter, userLevel, eventConfigs, eventData, user },
 		setEditEventId,
 	} = useContext(AppContext)
 
-	const initialRef = useRef()
-	const { isOpen, onOpen, onClose } = useDisclosure()
+	const {
+		isOpen: isEventOpen,
+		onOpen: onEventOpen,
+		onClose: onEventClose,
+	} = useDisclosure()
 
 	const [week, setWeek] = useState(0)
 
@@ -49,8 +51,31 @@ const Home = () => {
 		[week]
 	)
 
+	const filteredEvents = useMemo(() => {
+		if (user?.id) {
+			return eventData.filter((event) => {
+				if (userLevel === UserLevels.kid) {
+					return event.kid_id === user.id
+				}
+
+				if (kidFilter !== null) {
+					return event.kid_id === kidFilter
+				}
+
+				return true
+			})
+		} else {
+			return []
+		}
+	}, [eventData, userLevel, kidFilter, user])
+
 	return (
-		<div>
+		<Box
+			fontSize={{
+				base: '14px',
+				md: '16px',
+			}}
+		>
 			<Head>
 				<title>KidCash Rewards</title>
 				<meta name="description" content="Make money money." />
@@ -58,15 +83,14 @@ const Home = () => {
 			</Head>
 			<Grid>
 				<GridItem>
-					<Navbar onOpen={onOpen} />
+					<Navbar onEventOpen={onEventOpen} />
 				</GridItem>
 				<GridItem>
-					<Flex gap="1rem" margin="1rem" justifyContent={'center'}>
+					<Flex gap=".5rem" margin=".5rem" justifyContent={'center'}>
 						<IconButton
 							aria-label="Go back a week"
 							icon={<BiChevronLeft size={'2rem'} />}
 							colorScheme="green"
-							size={'lg'}
 							onClick={() => setWeek(week - 1)}
 						/>
 						<IconButton
@@ -74,7 +98,6 @@ const Home = () => {
 							icon={<BiAlarm size={'2rem'} />}
 							colorScheme="blue"
 							disabled={week === 0}
-							size={'lg'}
 							onClick={() => setWeek(0)}
 						/>
 						<IconButton
@@ -82,11 +105,11 @@ const Home = () => {
 							icon={<BiChevronRight size={'2rem'} />}
 							colorScheme="green"
 							disabled={week === 0}
-							size={'lg'}
 							onClick={() => setWeek(week + 1 > 0 ? 0 : week + 1)}
 						/>
 					</Flex>
 				</GridItem>
+
 				<GridItem>
 					<Grid
 						gridTemplateColumns={{
@@ -96,11 +119,11 @@ const Home = () => {
 									: '1fr 1fr 2fr 1fr',
 							base: '1fr 1fr',
 						}}
-						gap=".5rem"
+						gap={{ base: '.25rem', md: '.5rem' }}
 						m={'1rem'}
 					>
 						{weekDays.map((weekDay) => (
-							<React.Fragment key={weekDay}>
+							<React.Fragment key={weekDay.format('YYYY-MM-DD')}>
 								<GridItem
 									colSpan={{
 										base: 2,
@@ -109,6 +132,10 @@ const Home = () => {
 												? 5
 												: 4,
 									}}
+									borderTop="solid transparent 3px"
+									borderTopColor={'gray.200'}
+									marginTop={'.rem'}
+									paddingTop={'.5rem'}
 								>
 									<Heading size={'md'}>
 										{moment(weekDay).format(
@@ -116,7 +143,8 @@ const Home = () => {
 										)}
 									</Heading>
 								</GridItem>
-								{eventData
+
+								{filteredEvents
 									.filter(
 										(event) =>
 											event.date ===
@@ -124,6 +152,18 @@ const Home = () => {
 									)
 									.map((event) => (
 										<React.Fragment key={event.id}>
+											<GridItem
+												colSpan={{
+													base: 2,
+													md:
+														userLevel ===
+														UserLevels.parent
+															? 5
+															: 4,
+												}}
+											>
+												<hr />
+											</GridItem>
 											<GridItem>
 												<u>
 													{
@@ -180,20 +220,14 @@ const Home = () => {
 											{userLevel ===
 												UserLevels.parent && (
 												<GridItem
+													color={'blue.500'}
+													onClick={() => {
+														setEditEventId(event.id)
+														onEventClose()
+													}}
 													justifySelf={'flex-end'}
 												>
-													<IconButton
-														aria-label="Go back a week"
-														icon={<BiPencil />}
-														colorScheme="blue"
-														size={'md'}
-														onClick={() => {
-															setEditEventId(
-																event.id
-															)
-															onOpen()
-														}}
-													/>
+													<BiPencil size={'1.5rem'} />
 												</GridItem>
 											)}
 										</React.Fragment>
@@ -203,12 +237,8 @@ const Home = () => {
 					</Grid>
 				</GridItem>
 			</Grid>
-			<ManageEvent
-				isOpen={isOpen}
-				onClose={onClose}
-				initialRef={initialRef}
-			/>
-		</div>
+			<ManageEvent isOpen={isEventOpen} onClose={onEventClose} />
+		</Box>
 	)
 }
 

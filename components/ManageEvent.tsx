@@ -24,7 +24,7 @@ import moment, { weekdays } from 'moment'
 import AppContext from '../AppContext'
 import { supabaseClient } from '../lib/client'
 
-const ManageTodo = ({
+const ManageEvent = ({
 	isOpen,
 	onClose,
 }: // initialRef,
@@ -313,4 +313,4 @@ const ManageTodo = ({
 	)
 }
 
-export default ManageTodo
+export default ManageEvent

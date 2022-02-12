@@ -27,7 +27,8 @@ const Recover = () => {
 		try {
 			const { error } =
 				await supabaseClient.auth.api.resetPasswordForEmail(email, {
-					redirectTo: 'https://kid-cash.vercel.app/reset',
+					redirectTo: 'http://localhost:3000/reset',
+					// redirectTo: 'https://kid-cash.vercel.app/reset',
 				})
 			if (error) {
 				setError(error.message)
@@ -49,7 +50,7 @@ const Recover = () => {
 		<Box minH="100vh" py="12" px={{ base: '4', lg: '8' }} bg="gray.50">
 			<Box maxW="md" mx="auto">
 				<Heading textAlign="center" m="6">
-					Welcome to Todo App
+					Welcome to KidCash Rewards
 				</Heading>
 				{error && (
 					<Alert status="error" mb="6">

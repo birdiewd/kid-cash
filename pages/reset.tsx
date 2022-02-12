@@ -67,7 +67,7 @@ const Reset = () => {
 		<Box minH="100vh" py="12" px={{ base: '4', lg: '8' }} bg="gray.50">
 			<Box maxW="md" mx="auto">
 				<Heading textAlign="center" m="6">
-					Welcome to Todo App
+					Welcome to KidCash Rewards
 				</Heading>
 				{error && (
 					<Alert status="error" mb="6">
