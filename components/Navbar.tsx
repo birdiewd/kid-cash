@@ -74,7 +74,9 @@ const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 					KidCash Rewards
 				</Heading>
 				<NextLink href={'/faq'} passHref>
-					<Link color={'blue.500'}>FAQ</Link>
+					<Link color={'blue.500'} mx=".5rem">
+						FAQ
+					</Link>
 				</NextLink>
 				<Box>
 					<ButtonGroup spacing=".5rem">
