@@ -33,7 +33,7 @@ const ManageEvent = ({
 	onClose: CallableFunction
 }) => {
 	const {
-		state: { kidData, userLevel, eventConfigs, editEventId, eventData },
+		state: { kidData, userLevel, eventConfigs, editEventId, kidFilter },
 		getEvents,
 		getEvent,
 		setEditEventId,
@@ -43,7 +43,7 @@ const ManageEvent = ({
 		editEventId ? getEvent(editEventId).date : moment().format('YYYY-MM-DD')
 	)
 	const [kidId, setKidId] = useState<string | null>(
-		editEventId ? getEvent(editEventId).kid_id : null
+		editEventId ? getEvent(editEventId).kid_id : kidFilter
 	)
 	const [eventId, setEventId] = useState<string | null>(
 		editEventId ? getEvent(editEventId).task_id : null
@@ -60,6 +60,12 @@ const ManageEvent = ({
 			setDescription(getEvent(editEventId).description)
 		}
 	}, [editEventId])
+
+	useEffect(() => {
+		if (!editEventId) {
+			setKidId(kidFilter)
+		}
+	}, [kidFilter, editEventId])
 
 	const [isLoading, setIsLoading] = useState(false)
 	const [errorMessage, setErrorMessage] = useState('')
