@@ -77,17 +77,17 @@ const Navbar = ({ onEventOpen }: { onEventOpen: CallableFunction }) => {
 					<Link color={'blue.500'}>FAQ</Link>
 				</NextLink>
 				<Box>
-					{dollar && (
-						<Badge
-							colorScheme={'blackAlpha'}
-							mx="1rem"
-							p={'.25rem .5rem'}
-							fontSize={'xl'}
-						>
-							{dollar}
-						</Badge>
-					)}
 					<ButtonGroup spacing=".5rem">
+						{dollar && (
+							<Badge
+								colorScheme={'blackAlpha'}
+								mx="1rem"
+								p={'.25rem .5rem'}
+								fontSize={'xl'}
+							>
+								{dollar}
+							</Badge>
+						)}
 						{userLevel === UserLevels.parent && (
 							<>
 								<Select
