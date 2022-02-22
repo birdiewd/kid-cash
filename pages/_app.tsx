@@ -49,6 +49,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 			.from('tasks')
 			.select('*')
 			.is('is_active', true)
+			.order('name')
 
 		if (error) {
 			console.log('event configs fetch error', error)

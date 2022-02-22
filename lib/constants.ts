@@ -8,6 +8,7 @@ export enum UserLevels {
 export const AdditionIds = {
 	Chores: 1,
 	Shower: 2,
+	Phone: 14,
 	Dishwasher: 3,
 	Sheets: 4,
 	Towels: 11,
@@ -22,6 +23,7 @@ export const DeductionIds = {
 	PublicItems: 8,
 	BedroomFood: 9,
 	Shower: 10,
+	Phone: 15,
 }
 
 export const moneyRules = {
@@ -84,6 +86,13 @@ export const moneyRules = {
 			dollar: 25,
 			rule: (events): number => {
 				return events.length * 25
+			},
+		},
+		{
+			id: AdditionIds.Phone,
+			dollar: 1,
+			rule: (events): number => {
+				return events.length * 1
 			},
 		},
 	],
@@ -154,6 +163,13 @@ export const moneyRules = {
 				})
 
 				return consecDaysNoDups.length * 2
+			},
+		},
+		{
+			id: DeductionIds.Phone,
+			dollar: 1,
+			rule: (events): number => {
+				return events.length * 1
 			},
 		},
 	],
