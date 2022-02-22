@@ -175,7 +175,7 @@ const SignIn = () => {
 								on your or your phone not being charged
 							</span>
 							<Spread />
-							+$1
+							-$1
 						</Flex>
 					</ListItem>
 				</UnorderedList>
