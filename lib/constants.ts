@@ -149,18 +149,25 @@ export const moneyRules = {
 					)
 				})
 
-				const consecDaysNoDups = consecDays.filter((event, index) => {
-					if (index === 0) {
-						return true
-					}
+				const consecDaysNoDups = consecDays.reduce(
+					(noDups, event, index) => {
+						if (index === 0) {
+							noDups.push(event)
+						} else if (
+							moment(noDups[noDups.length - 1].date).format(
+								'YYYY-MM-DD'
+							) !==
+							moment(event.date)
+								.add(-1, 'day')
+								.format('YYYY-MM-DD')
+						) {
+							noDups.push(event)
+						}
 
-					return (
-						moment(event.date).format('YYYY-MM-DD') !==
-						moment(consecDays[index - 1].date)
-							.add(1, 'day')
-							.format('YYYY-MM-DD')
-					)
-				})
+						return noDups
+					},
+					[]
+				)
 
 				return consecDaysNoDups.length * 2
 			},
